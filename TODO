@@ -14,3 +14,6 @@ grep TODO in package go files
 -evaluate if atomic vars that have a nexus might be handled as a group to avoid rare 
   disjointed-ness although the main reason for this possible concern is to provide 
   debug like monitoring via -expvar. 
+-likely change destination of -blkfile (output) 
+   from default blkchain.json to tmpout/blkchain.json
+-have all os.Exit func calls instead call 1 common func that calls os.Exit

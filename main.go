@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// package main implements an HTTP API server which accepts limited requests
-// demoing a limited blockchain simulator.
+// Package main (command blkchain) implements an HTTP API server
+// which accepts limited requests demoing a limited blockchain simulator.
 package main
 
 import (
