@@ -369,13 +369,13 @@ func APIserver() (msg string, excode int) {
 	}
 
 	// add closing json syntax if any blocks where written on this invocation.
-	bytesAdd := "]}"
 	if totblkappSinv > 0 {
+		bytesAdd := "]}"
 		if _, err := blkfilep.Write([]byte(bytesAdd)); err != nil {
 			log.Panic("appendWriteError:" + err.Error())
 		}
+		atomic.AddUint64(&totwrtbytesSinv, uint64(len(bytesAdd)))
 	}
-	atomic.AddUint64(&totwrtbytesSinv, uint64(len(bytesAdd)))
 
 	if verblvl > 1 {
 		fn.LogCondMsg(true, fmt.Sprintf("blocks-Sinvappended:%d\n", atomic.LoadUint64(&totblkappSinv)))
