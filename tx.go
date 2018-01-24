@@ -26,7 +26,7 @@ import (
 
 // this file contains functions related to transactions (tx) processing.
 
-// for most of following vars see definitions in flagsStruct
+// for most of following vars see definitions in flagsStruct and respective assignments in prelimsCLI func.
 var (
 	blkctime    time.Duration
 	blkctimestr string
@@ -183,7 +183,7 @@ func (tx *txStruct) addToBlock() {
 
 	blk.Transactions = append(blk.Transactions, *tx)
 	lenbc := len(blk.Transactions)
-	atomic.StoreUint64(&curblktxcnt, uint64(len(blk.Transactions)))
+	atomic.StoreUint64(&curblktxcnt, uint64(lenbc))
 
 	// if first transaction in a block and max transactions in a block is not 1.
 	if lenbc == 1 && blktxmax != 1 {
@@ -330,7 +330,7 @@ func APIserver() (msg string, excode int) {
 	excode = ExcodeGeneralError // for now no way to exit except by an error
 
 	var err error
-	//blkfilep, err = os.OpenFile(blkfile, os.O_APPEND|os.O_CREATE|os.O_RDWR, 0600)
+	// skipped O_APPEND because using seek.
 	blkfilep, err = os.OpenFile(blkfile, os.O_CREATE|os.O_RDWR, 0600)
 	if err != nil {
 		return fmt.Sprintf("error opening file:%q err=%v", blkfile, err), ExcodeFileOpenErr
