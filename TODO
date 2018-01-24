@@ -9,3 +9,6 @@ grep TODO in package go files
 -add flag to dump excodes with text; perhaps use map[exitcode(int)]string 
   where string includes: exitcode-number, gocodename and text, maybe AST in play here?
 -add dump invocation time to output when -invdetails is set
+-add flag and related code to enable an http api request to shutdown server (gracefully)
+-reevaluate what level of -verblvl should dump conditional output messages/logging.
+-evaluate if atomic vars that have a nexus might be handled as a group to avoid rare disjointed-ness although the main reason for this possible concern is to provide debug like monitoring via -expvar. 
