@@ -1,9 +1,9 @@
 #
-Package main - provides a CLI interface for testing a blockchain simulator
+Package main - provides a CLI interface implementing a blockchain simulator
 according to it specification as provided by client. 
 
 RUN: cd to where you have installed and built it (see INSTALL) below:
-./blkchain -help
+after building see available options by invoking: ./blkchain -help
 
 for examples: see file: EXAMPLES
 

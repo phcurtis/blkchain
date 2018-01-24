@@ -20,7 +20,7 @@ const (
 	ExcodeHTTPServerErr        = 3   //
 	ExcodeCtrlcSignal          = 4   // control-c, or process was ended via bash> kill pid or similar
 	ExcodeFileOpenErr          = 5   //
-	ExcodeSystemMonitorKill    = 137 // seen using xubuntu 'system monitor' kill
+	ExcodeSystemMonitorKill    = 137 // seen using xubuntu 'system monitor' kill, json file likely will have issues AVOID!
 	ExcodeCliHelpUsage         = 200 //
 	ExcodeCliFlagissue         = 201 //
 	ExcodeCliUnrecognizedInput = 202 //

@@ -3,6 +3,9 @@ grep TODO in package go files
   verify program perhaps through 'go test' of a given blkchain file.
 -add go test code.
 -add search key feature
--add dependency manage of github.com packages gorilla/mux and phcurtis/fn.
+-add dependency management of github.com external packages, e.g. gorilla/mux and phcurtis/fn.
 -consider level logging
 -add peer to peer feature
+-add flag to dump excodes with text; perhaps use map[exitcode(int)]string 
+  where string includes: exitcode-number, gocodename and text, maybe AST in play here?
+-add dump invocation time to output when -invdetails is set

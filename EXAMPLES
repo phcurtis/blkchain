@@ -34,3 +34,8 @@ any web browser such as firefox.
 // sets invocation details to be outputed soon after invocation (includes all flags values).
 ./blkchain -verblvl=2 -blk.ctime=15s -blk.txmax=3 -expvars -invdetails
 
+// example 6 below:
+// sets verbosity-level to 3, 
+// sets invocation details to be outputed soon after invocation (includes all flags values).
+// sets development mode which provides more error details on some http request detected issues via an http response body (json).
+./blkchain -verblvl=3 -invdetails -devmode
