@@ -1,0 +1,36 @@
+// Copyright 2018 phcurtis blkchain Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+RUN EXAMPLES:
+in these examples: cd to where blkchain executable exists
+note: nothing is added to output blkchain file unless at least one transaction is added.
+note: output to blkchain file is in json format so should be able to view with nearly
+any web browser such as firefox.
+
+// example 1 below:
+// invokes blkchain using all defaults values
+./blkchain
+
+// example 2 below:
+// invokes blkchain requesting help (what flags are possible and their default settings).
+./blkchain -help
+
+// example 3 below:
+// invokes blkchain requesting version which is then outputed and soon exits.
+./blkchain -version
+
+// example 4 below:
+// invoke blkchain
+// set blkchain output file to blkchain1.json
+./blkchain -blk.file=blkchain1.json
+
+// example 5 below:
+// invokes blkchain 
+// sets verbosity-level to 2, 
+// sets blk commit time to 15 seconds
+// sets blk max transactions to 3 at which point it will write the block
+// sets expvars package http access of memory stats and published blkchain vars.
+// sets invocation details to be outputed soon after invocation (includes all flags values).
+./blkchain -verblvl=2 -blk.ctime=15s -blk.txmax=3 -expvars -invdetails
+

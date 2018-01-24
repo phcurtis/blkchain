@@ -1,0 +1,8 @@
+grep TODO in package go files
+-refactor code to make public key funcs to do hash so can write
+  verify program perhaps through 'go test' of a given blkchain file.
+-add go test code.
+-add search key feature
+-add dependency manage of github.com packages gorilla/mux and phcurtis/fn.
+-consider level logging
+-add peer to peer feature
