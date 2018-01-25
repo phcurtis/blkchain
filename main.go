@@ -7,14 +7,13 @@
 package main
 
 import (
-	"os"
 	"time"
 
 	"github.com/phcurtis/fn"
 )
 
 // Version of this program
-const Version = "0.02"
+const Version = "0.03"
 
 func main() {
 	timeofinv = time.Now() // capture time of invocation.
@@ -27,5 +26,5 @@ func main() {
 		excode != ExcodeProgramSuccess, msg)
 
 	onExitFunc(&msg)
-	os.Exit(excode)
+	osExit(excode)
 }
