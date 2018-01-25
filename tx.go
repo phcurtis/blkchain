@@ -26,7 +26,8 @@ import (
 
 // this file contains functions related to transactions (tx) processing.
 
-// for most of following vars see definitions in flagsStruct and respective assignments in prelimsCLI func.
+// for most of the following vars see definitions in flagsStruct and
+// respective assignments in prelimsCLI func.
 var (
 	blkctime    time.Duration
 	blkctimestr string
