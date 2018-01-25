@@ -85,6 +85,14 @@ func init() {
 	flag2.IntVar(&flags.verblvl, "verblvl", 0, "verbosity level")
 }
 
+func osExit(excode int) {
+	if excode != ExcodeProgramSuccess {
+		fmt.Fprintf(os.Stderr, fmt.Sprintf("exiting:exitcode=%d(%s) caller:%s\n",
+			excode, ExcodeText(excode), fn.LvlInfoShort(fn.Lpar)))
+	}
+	os.Exit(excode)
+}
+
 func prelimsCLI(gotest bool) {
 	flag2.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage of %s: (Version:%s)\n", os.Args[0], Version)
@@ -93,23 +101,23 @@ func prelimsCLI(gotest bool) {
 
 	if err := flag2.Parse(os.Args[1:]); err != nil {
 		if err == flag.ErrHelp {
-			os.Exit(ExcodeCliHelpUsage)
+			osExit(ExcodeCliHelpUsage)
 		}
-		os.Exit(ExcodeCliFlagissue)
+		osExit(ExcodeCliFlagissue)
 	}
 
 	if flag2.NArg() > 0 {
 		fmt.Fprintf(os.Stderr, "unrecognized %v\nUsage of %s (Version:%s):\n",
 			flag2.Args(), os.Args[0], Version)
 		flag2.PrintDefaults()
-		os.Exit(ExcodeCliUnrecognizedInput)
+		osExit(ExcodeCliUnrecognizedInput)
 	}
 
 	fn.LogSetFlags(flags.fnlogflags)
 
 	if flags.showversion {
 		fn.LogCondMsg(true, fmt.Sprintf("%s version=%s\n", os.Args[0], Version))
-		os.Exit(ExcodeCliVersionReq)
+		osExit(ExcodeCliVersionReq)
 	}
 
 	if flags.showinvdetails || flags.verblvl > 3 {
