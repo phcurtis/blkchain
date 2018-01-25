@@ -354,7 +354,7 @@ func blkchainFileStat(msg string) {
 func APIserver() (msg string, excode int) {
 	defer fn.LogCondTrace(verblvl > 1)()
 	catchProcessTerminate()
-	excode = ExcodeGeneralError // for now no way to exit except by an error
+	excode = ExcodeGeneralError
 
 	var err error
 	// skipped O_APPEND because using seek.
