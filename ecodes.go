@@ -6,8 +6,6 @@ package main
 
 import (
 	"fmt"
-
-	"github.com/phcurtis/fn"
 )
 
 // This file contains 'exit codes', 'error codes' and related.
@@ -26,6 +24,30 @@ const (
 	ExcodeCliUnrecognizedInput = 202 //
 	ExcodeCliVersionReq        = 203 //
 )
+
+var excodeText = map[int]string{
+	ExcodeProgramSuccess:       "no error-program success",
+	ExcodeGeneralError:         "general error",
+	ExcodePanic:                "panic error",
+	ExcodeHTTPServerErr:        "HTTP server error",
+	ExcodeCtrlcSignal:          "control-c or similar caused exit",
+	ExcodeFileOpenErr:          "file open error",
+	ExcodeCliHelpUsage:         "CLI help usage was requested",
+	ExcodeCliFlagissue:         "CLI flag issue",
+	ExcodeCliUnrecognizedInput: "CLI unrecognized input",
+	ExcodeCliVersionReq:        "CLI version requested",
+	// ExcodeSystemMonitorKill: program does not see; process was hard killed
+}
+
+// ExcodeText - returns error text for given 'code'
+func ExcodeText(code int) string {
+	text, ok := excodeText[code]
+	if ok {
+		return text
+	}
+	msg := fmt.Sprintf("ExcodeText(%d) not Defined INFORM developer", code)
+	return msg
+}
 
 // Error codes constants
 const (
@@ -51,6 +73,5 @@ func ErrText(code int) string {
 		return text
 	}
 	msg := fmt.Sprintf("ErrText(%d) not Defined INFORM developer", code)
-	fn.LogCondMsg(true, msg+"\n")
 	return msg
 }
