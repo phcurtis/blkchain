@@ -39,7 +39,7 @@ var excodeText = map[int]string{
 	// ExcodeSystemMonitorKill: program does not see; process was hard killed
 }
 
-// ExcodeText - returns error text for given 'code'
+// ExcodeText - returns excode text for given 'code'
 func ExcodeText(code int) string {
 	text, ok := excodeText[code]
 	if ok {
