@@ -27,6 +27,7 @@ type flagsStruct struct {
 	showinvdetails bool
 	showversion    bool
 	srvport        int
+	srvsdenable    bool
 	srvurl         string
 	verblvl        int
 }
@@ -69,7 +70,7 @@ func init() {
 
 	err := flags.blkctimestr.Set(blkctimestrDef)
 	if err != nil {
-		log.Panic(err)
+		logPanic(err)
 	}
 	flag2.Var(flags.blkctimestr, "blk.ctime", "block commit time duration")
 
@@ -81,12 +82,13 @@ func init() {
 	flag2.BoolVar(&flags.showinvdetails, "invdetails", false, "show invocation details")
 	flag2.BoolVar(&flags.showversion, "version", false, "show version and exit")
 	flag2.IntVar(&flags.srvport, "srv.port", 8080, "server port to listen on")
+	flag2.BoolVar(&flags.srvsdenable, "srv.sdenable", false, "enables srv shutdown http api /srvshutdown")
 	flag2.StringVar(&flags.srvurl, "srv.url", "localhost", "server url")
 	flag2.IntVar(&flags.verblvl, "verblvl", 0, "verbosity level")
 }
 
 func osExit(excode int) {
-	if excode != ExcodeProgramSuccess {
+	if excode != ExcodeNoError {
 		fmt.Fprintf(os.Stderr, fmt.Sprintf("exiting:exitcode=%d(%s) caller:%s\n",
 			excode, ExcodeText(excode), fn.LvlInfoShort(fn.Lpar)))
 	}
@@ -123,6 +125,7 @@ func prelimsCLI(gotest bool) {
 	if flags.showinvdetails || flags.verblvl > 3 {
 		fn.LogCondMsg(true, fmt.Sprintf("%s version=%s\n", os.Args[0], Version))
 		fn.LogCondMsg(true, fmt.Sprintf("%v\n", os.Args))
+		fn.LogCondMsg(true, fmt.Sprintf("invTime:epoch:%v local:%v", timeofinv.Unix(), timeofinv))
 		fn.LogCondMsg(true, fmt.Sprintf("flags:%+v\n", flags))
 	}
 
@@ -138,6 +141,7 @@ func prelimsCLI(gotest bool) {
 	expvars = flags.expvars
 	fnlogflags = flags.fnlogflags
 	srvport = flags.srvport
+	srvsdenable = flags.srvsdenable
 	srvurl = flags.srvurl
 	verblvl = flags.verblvl
 }

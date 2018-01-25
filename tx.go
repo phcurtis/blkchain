@@ -10,7 +10,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -29,18 +28,20 @@ import (
 // for most of the following vars see definitions in flagsStruct and
 // respective assignments in prelimsCLI func.
 var (
-	blkctime    time.Duration
-	blkctimestr string
-	blktxmax    int
-	blkfile     string
-	blkfilep    *os.File
-	devMode     bool
-	expvars     bool
-	fnlogflags  int
-	srvurl      string
-	srvport     int
-	timeofinv   time.Time // time of invocation
-	verblvl     int
+	blkctime        time.Duration
+	blkctimestr     string
+	blktxmax        int
+	blkfile         string
+	blkfilep        *os.File
+	devMode         bool
+	expvars         bool
+	fnlogflags      int
+	openingFileSize int64 // opening 'blockchain' file size
+	srvsdenable     bool
+	srvurl          string
+	srvport         int
+	timeofinv       time.Time // time of invocation
+	verblvl         int
 )
 
 type txStruct struct {
@@ -96,7 +97,7 @@ func (b *Blk) append2File() {
 
 	bytes1, jerr := json.Marshal(b)
 	if jerr != nil {
-		log.Panic("json.Marshal:" + jerr.Error()) // TODO later better error msg even though should not happen :)
+		logPanic("json.Marshal:" + jerr.Error()) // TODO later better error msg even though should not happen :)
 		return
 	}
 
@@ -112,10 +113,10 @@ func (b *Blk) append2File() {
 			// need to replace last char which must be and is assumed to be '}' in file with a ',' and add linefeed.
 			n, err := blkfilep.Seek(blkchainFileSize()-1, os.SEEK_SET)
 			if err != nil {
-				log.Panic(err)
+				logPanic(err)
 			}
 			if n != blkchainFileSize()-1 {
-				log.Panic(err)
+				logPanic(err)
 			}
 			buf1.Write([]byte(`,` + "\n"))
 		}
@@ -129,7 +130,7 @@ func (b *Blk) append2File() {
 	buf1.Write(bytes1)
 	bytes2 := buf1.Bytes()
 	if _, err := blkfilep.Write(bytes2); err != nil {
-		log.Panic("appendWriteError:" + err.Error())
+		logPanic("appendWriteError:" + err.Error())
 	}
 
 	fn.LogCondMsg(verblvl > 2, fmt.Sprintf("curblkwrtbytes:%d BlockHash:%v", len(bytes2), b.BlockHash))
@@ -266,6 +267,26 @@ func cepSearchTx(w http.ResponseWriter, r *http.Request) {
 	//}
 }
 
+// cepSrvShutdown - client entry point for: /srvshutdown.
+func cepSrvShutdown(w http.ResponseWriter, r *http.Request) {
+	defer fn.LogCondTrace(devMode || verblvl > 2)()
+
+	bytes, jerr := json.Marshal(struct {
+		ClientMsg string `json:"clientmsg"`
+	}{"srvshutdown received"})
+	if jerr != nil {
+		sendHTTPError(w, http.StatusInternalServerError, ErrJSONmarshal,
+			"error JSON marshal of transaction", callerPar())
+		return
+	}
+
+	writeJSON(w, http.StatusOK, bytes, bytes, verblvl > 2)
+
+	// signal to shutdown the server
+	signalCh <- sigSrvShutdownReq
+	return
+}
+
 // set up routes to be http served.
 func routesSetup() *http.Server {
 	defer fn.LogCondTrace(verblvl > 2)()
@@ -279,6 +300,10 @@ func routesSetup() *http.Server {
 	r.HandleFunc("/tx", cepTx)
 	r.HandleFunc("/searchtx", cepSearchTx)
 
+	if srvsdenable {
+		r.HandleFunc("/srvshutdown", cepSrvShutdown)
+	}
+
 	server := &http.Server{
 		Addr:    fmt.Sprintf("%s:%d", srvurl, srvport),
 		Handler: r,
@@ -288,8 +313,9 @@ func routesSetup() *http.Server {
 
 // signal codes.
 const (
-	sigTerminate = 1
-	sigSrvErr    = 2
+	sigTerminate      = 1
+	sigSrvErr         = 2
+	sigSrvShutdownReq = 3
 )
 
 var signalCh = make(chan int)
@@ -312,7 +338,7 @@ func catchProcessTerminate() {
 func blkchainFileSize() (cursize int64) {
 	fi, err := os.Stat(blkfile)
 	if err != nil {
-		log.Panic(err)
+		logPanic(err)
 	}
 	return fi.Size()
 }
@@ -338,6 +364,8 @@ func APIserver() (msg string, excode int) {
 	}
 	defer func() { _ = blkfilep.Close() }()
 
+	openingFileSize = blkchainFileSize()
+
 	if verblvl > 1 {
 		blkchainFileStat("opening")
 	}
@@ -353,35 +381,40 @@ func APIserver() (msg string, excode int) {
 
 	code := <-signalCh
 	switch code {
-	case sigTerminate:
+	case sigTerminate, sigSrvShutdownReq:
 		if err := server.Shutdown(nil); err != nil {
-			log.Panic(err)
+			logPanic(err)
 		}
 		stopTimerFlushBlk()
 		blk.flush()
-		msg = "exiting: due to 'terminate' signal"
-		excode = ExcodeCtrlcSignal
+		if code == sigTerminate {
+			msg = "exiting: due to 'terminate' signal"
+			excode = ExcodeCtrlcSignal
+		} else {
+			msg = "exiting: due to 'svr shutdown request' signal"
+			excode = ExcodeNoError
+		}
 	case sigSrvErr:
 		msg = "exiting:srvErr: " + srvmsg
-		fn.LogCondMsg(verblvl > 0, msg)
 		excode = ExcodeHTTPServerErr
 	default:
-		log.Panic(fmt.Sprintf("unrecognized code:%v\n", code))
+		logPanic(fmt.Sprintf("unrecognized code:%v", code))
 	}
 
 	// add closing json syntax if any blocks where written on this invocation.
 	if totblkappSinv > 0 {
 		bytesAdd := "]}"
 		if _, err := blkfilep.Write([]byte(bytesAdd)); err != nil {
-			log.Panic("appendWriteError:" + err.Error())
+			logPanic("appendWriteError:" + err.Error())
 		}
 		atomic.AddUint64(&totwrtbytesSinv, uint64(len(bytesAdd)))
 	}
 
 	if verblvl > 1 {
-		fn.LogCondMsg(true, fmt.Sprintf("blocks-Sinvappended:%d\n", atomic.LoadUint64(&totblkappSinv)))
-		fn.LogCondMsg(true, fmt.Sprintf("trans--Sinvappended:%d\n", atomic.LoadUint64(&tottxappSinv)))
-		fn.LogCondMsg(true, fmt.Sprintf("bytes--Sinvappended:%d\n", atomic.LoadUint64(&totwrtbytesSinv)))
+		fn.LogCondMsg(true, fmt.Sprintf(".......blocks-SinvAppended:%d\n", atomic.LoadUint64(&totblkappSinv)))
+		fn.LogCondMsg(true, fmt.Sprintf(".......trans--SinvAppended:%d\n", atomic.LoadUint64(&tottxappSinv)))
+		fn.LogCondMsg(true, fmt.Sprintf(".......bytes--SinvWritten.:%d\n", atomic.LoadUint64(&totwrtbytesSinv)))
+		fn.LogCondMsg(true, fmt.Sprintf("begToend-SinvFilesizeDelta:%d\n", blkchainFileSize()-openingFileSize))
 		blkchainFileStat("closing")
 	}
 

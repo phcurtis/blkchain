@@ -7,7 +7,9 @@ package main
 import (
 	"encoding/json"
 	"expvar"
+	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"sync/atomic"
 
@@ -24,6 +26,11 @@ func publishExpvars() {
 	expvar.Publish("1b-totblkappSinv", expvar.Func(func() interface{} { return atomic.LoadUint64(&totblkappSinv) }))
 	expvar.Publish("1b-tottxappSinv", expvar.Func(func() interface{} { return atomic.LoadUint64(&tottxappSinv) }))
 	expvar.Publish("1b-totwrtbytesSinv", expvar.Func(func() interface{} { return atomic.LoadUint64(&totwrtbytesSinv) }))
+}
+
+func logPanic(v ...interface{}) {
+	fn.LogCondMsg(true, fmt.Sprintf("err:%v calledBy:%s", v, fn.LvlInfoShort(fn.Lpar)))
+	log.Panic(v)
 }
 
 func callerPar() string {

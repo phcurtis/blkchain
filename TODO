@@ -6,11 +6,10 @@ grep TODO in package go files
 -add dependency management of github.com external packages, e.g. gorilla/mux and phcurtis/fn.
 -consider level logging
 -add peer to peer feature
--add dump invocation time to output when -invdetails is set
--add flag and related code to enable an http api request to shutdown server (gracefully)
 -reevaluate what level of -verblvl should dump conditional output messages/logging.
 -evaluate if atomic vars that have a nexus might be handled as a group to avoid rare 
   disjointed-ness although the main reason for this possible concern is to provide 
   debug like monitoring via -expvar. 
--likely change destination of -blkfile (output) 
-   from default blkchain.json to tmpout/blkchain.json
+- possible change destination of -blkfile (output)  
+   from default blkchain.json to tmpout/blkchain.json but need to be 
+   concerned with / versus \ in different environments.

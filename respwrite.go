@@ -7,7 +7,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/phcurtis/fn"
@@ -18,7 +17,7 @@ import (
 
 func writeRaw(w http.ResponseWriter, data []byte) {
 	if _, err := w.Write(data); err != nil {
-		log.Panic(err)
+		logPanic(err)
 	}
 }
 
@@ -51,7 +50,7 @@ func sendHTTPError(w http.ResponseWriter, httpScode, errCode int, errMsg, caller
 		Details ierrdetails `json:"error"`
 	}{ierrdetails{httpScode, hst, errCode, errText[errCode], errMsg, caller}}, "", "\t")
 	if ierr != nil {
-		log.Panic(ierr)
+		logPanic(ierr)
 	}
 
 	// prep stuff for client (limited) details of error
@@ -65,7 +64,7 @@ func sendHTTPError(w http.ResponseWriter, httpScode, errCode int, errMsg, caller
 		Details cerrdetails `json:"error"`
 	}{cerrdetails{httpScode, clientMsg}}, "", "\t")
 	if cerr != nil {
-		log.Panic(cerr)
+		logPanic(cerr)
 	}
 
 	writeJSON(w, httpScode, cbytes, ibytes, verblvl > 0)

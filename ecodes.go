@@ -12,7 +12,7 @@ import (
 
 // Excode ... exit codes constants
 const (
-	ExcodeProgramSuccess       = 0   //
+	ExcodeNoError              = 0   //
 	ExcodeGeneralError         = 1   //
 	ExcodePanic                = 2   // verify if this is norm for a panic; happens on xubuntu sys
 	ExcodeHTTPServerErr        = 3   //
@@ -26,7 +26,7 @@ const (
 )
 
 var excodeText = map[int]string{
-	ExcodeProgramSuccess:       "no error-program success",
+	ExcodeNoError:              "no error",
 	ExcodeGeneralError:         "general error",
 	ExcodePanic:                "panic error",
 	ExcodeHTTPServerErr:        "HTTP server error",

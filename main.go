@@ -13,7 +13,7 @@ import (
 )
 
 // Version of this program
-const Version = "0.03"
+const Version = "0.04"
 
 func main() {
 	timeofinv = time.Now() // capture time of invocation.
@@ -23,7 +23,7 @@ func main() {
 	msg, excode := APIserver()
 
 	fn.LogCondMsg(!(devMode || verblvl > 0) &&
-		excode != ExcodeProgramSuccess, msg)
+		excode != ExcodeNoError, msg)
 
 	onExitFunc(&msg)
 	osExit(excode)
